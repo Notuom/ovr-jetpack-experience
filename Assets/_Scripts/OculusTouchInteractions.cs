@@ -5,11 +5,14 @@ using UnityEngine;
 
 public class OculusTouchInteractions : MonoBehaviour
 {
-    private const float ThrustSpeed = 10.0f;
+    private const float ThrustSpeed = 5.0f;
 
     public GameObject CameraGameObject;
     public OVRInput.Controller LeftController;
     public OVRInput.Controller RightController;
+    public GameObject DebugLeftArrow;
+    public GameObject DebugRightArrow;
+    public GameObject DebugAverageArrow;
 
     private Rigidbody _rb;
 
@@ -25,20 +28,44 @@ public class OculusTouchInteractions : MonoBehaviour
         transform.rotation = CameraGameObject.transform.rotation;
         var leftTriggerInput = OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger, LeftController);
         var rightTriggerInput = OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger, RightController);
+        Quaternion leftControllerRotation = Quaternion.identity,
+            rightControllerRotation = Quaternion.identity,
+            averageControllerRotation = Quaternion.identity;
+
+        DebugAverageArrow.SetActive(false);
+
+        DebugLeftArrow.SetActive(false);
         if (leftTriggerInput > 0)
         {
-            var leftControllerRotation = OVRInput.GetLocalControllerRotation(LeftController);
-            Debug.Log("LEFT Input! I:" + leftTriggerInput + ", R:" + leftControllerRotation);
-            _rb.AddForce(leftControllerRotation * Vector3.one * ThrustSpeed);
-//            Debug.DrawLine(Vector3.zero, leftControllerRotation * Vector3.one);
-//            _rb.AddForce(0, Math.Max(leftTriggerInput, rightTriggerInput) * ThrustSpeed, 0);
+            DebugLeftArrow.SetActive(true);
+            DebugAverageArrow.SetActive(true);
+            leftControllerRotation = OVRInput.GetLocalControllerRotation(LeftController);
+            averageControllerRotation = leftControllerRotation;
+            _rb.AddForce(leftControllerRotation * Quaternion.Euler(-45, 0, 45) * Vector3.one * leftTriggerInput * ThrustSpeed);
+            Debug.DrawLine(Vector3.zero, leftControllerRotation * Quaternion.Euler(-45, 0, 45) * Vector3.one, Color.red);
+            DebugLeftArrow.transform.rotation = leftControllerRotation;
         }
-        else if (rightTriggerInput > 0)
+
+        DebugRightArrow.SetActive(false);
+        if (rightTriggerInput > 0)
         {
-            var rightControllerRotation = OVRInput.GetLocalControllerRotation(RightController);
-            Debug.Log("RIGHT Input! I:" + rightTriggerInput + ", R:" + rightControllerRotation);
-//            Debug.DrawLine(Vector3.zero, rightControllerRotation * Vector3.one);
-//            _rb.AddForce(0, Math.Max(rightTriggerInput, rightTriggerInput) * ThrustSpeed, 0);
+            DebugRightArrow.SetActive(true);
+            DebugAverageArrow.SetActive(true);
+            rightControllerRotation = OVRInput.GetLocalControllerRotation(RightController);
+            averageControllerRotation = rightControllerRotation;
+            _rb.AddForce(rightControllerRotation * Quaternion.Euler(-45, 0, 45) * Vector3.one * rightTriggerInput * ThrustSpeed);
+            Debug.DrawLine(Vector3.zero, rightControllerRotation * Quaternion.Euler(-45, 0, 45) * Vector3.one, Color.blue);
+            DebugRightArrow.transform.rotation = rightControllerRotation;
+        }
+
+        if (leftTriggerInput > 0 && rightTriggerInput > 0)
+        {
+            averageControllerRotation = Quaternion.Lerp(leftControllerRotation, rightControllerRotation, 0.5f);
+        }
+        if (leftTriggerInput > 0 || rightTriggerInput > 0)
+        {
+            DebugAverageArrow.transform.rotation = averageControllerRotation;
+            Debug.DrawLine(Vector3.zero, averageControllerRotation * Quaternion.Euler(-45, 0, 45) * Vector3.one, Color.white);
         }
     }
 }
