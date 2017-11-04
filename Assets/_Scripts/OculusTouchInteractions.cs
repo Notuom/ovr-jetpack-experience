@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class OculusTouchInteractions : MonoBehaviour
 {
     private const float ThrustSpeed = 5.0f;
 
-    public GameObject CameraGameObject;
+    public GameObject ThrustAudioGameObject;
+    public GameObject SmokeGameObject;
     public OVRInput.Controller LeftController;
     public OVRInput.Controller RightController;
 
@@ -18,12 +17,22 @@ public class OculusTouchInteractions : MonoBehaviour
     public GameObject DebugRightArrow;
     public GameObject DebugAverageArrow;
 
+    // Component references
     private Rigidbody _rb;
+
+    private ParticleSystem _ps;
+    private AudioSource _thrustAudioSource;
+
+    // Local variables
     private Quaternion _touchRotationFix;
+
+    private Boolean _thrusting;
 
     private void Start()
     {
         _rb = GetComponent<Rigidbody>();
+        _ps = SmokeGameObject.GetComponent<ParticleSystem>();
+        _thrustAudioSource = ThrustAudioGameObject.GetComponent<AudioSource>();
 
         // Rotate the value retrieved from the touch controller in order to send the player in the right direction
         _touchRotationFix = Quaternion.Euler(-45, 0, 45);
@@ -78,10 +87,25 @@ public class OculusTouchInteractions : MonoBehaviour
         {
             averageControllerRotation = Quaternion.Lerp(leftControllerRotation, rightControllerRotation, 0.5f);
         }
-        if (DebugEnabled && (leftTriggerInput > 0 || rightTriggerInput > 0))
+        if (leftTriggerInput > 0 || rightTriggerInput > 0)
         {
-            DebugAverageArrow.transform.rotation = averageControllerRotation;
-            Debug.DrawLine(Vector3.zero, averageControllerRotation * Vector3.one, Color.white);
+            _ps.Emit(5);
+            if (!_thrusting)
+            {
+                _thrusting = true;
+                _thrustAudioSource.Play();
+                _thrustAudioSource.loop = true;
+            }
+            if (DebugEnabled)
+            {
+                DebugAverageArrow.transform.rotation = averageControllerRotation;
+                Debug.DrawLine(Vector3.zero, averageControllerRotation * Vector3.one, Color.white);
+            }
+        }
+        else if (_thrusting)
+        {
+            _thrusting = false;
+            _thrustAudioSource.Stop();
         }
     }
 }

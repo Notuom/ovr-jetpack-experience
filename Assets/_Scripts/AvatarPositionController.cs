@@ -11,6 +11,5 @@ public class AvatarPositionController : MonoBehaviour
         var anchorAngles = AnchorObject.transform.rotation.eulerAngles;
         var eulerAngles = transform.rotation.eulerAngles;
         transform.rotation = Quaternion.Euler(eulerAngles.x, anchorAngles.y, eulerAngles.z);
-//        transform.forward = new Vector3(transform.forward.x, transform.forward.y, AnchorObject.transform.forward.z);
     }
 }
