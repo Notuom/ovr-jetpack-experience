@@ -3,42 +3,58 @@ using UnityEngine;
 
 public class OculusTouchInteractions : MonoBehaviour
 {
-    private const float ThrustSpeed = 5.0f;
-
-    public GameObject ThrustAudioGameObject;
+    // Configurable values
+    public float ThrustForceMultiplier;
+    
+    // GameObject references
+    public GameObject ThrustSoundGameObject;
     public GameObject SmokeGameObject;
+    public GameObject RingManagerGameObject;
+    
+    // OVRInput References
     public OVRInput.Controller LeftController;
     public OVRInput.Controller RightController;
 
     // Debug items
     public Boolean DebugEnabled;
-
     public GameObject DebugLeftArrow;
     public GameObject DebugRightArrow;
     public GameObject DebugAverageArrow;
 
+    // Constants / read-only variables
+    private static readonly Quaternion TouchRotationFix = Quaternion.Euler(-45, 0, 45);
+    
     // Component references
     private Rigidbody _rb;
-
     private ParticleSystem _ps;
     private AudioSource _thrustAudioSource;
+    private RingManagerController _ringManager;
 
-    // Local variables
-    private Quaternion _touchRotationFix;
-
+    // Local properties
     private Boolean _thrusting;
 
     private void Start()
     {
         _rb = GetComponent<Rigidbody>();
         _ps = SmokeGameObject.GetComponent<ParticleSystem>();
-        _thrustAudioSource = ThrustAudioGameObject.GetComponent<AudioSource>();
-
-        // Rotate the value retrieved from the touch controller in order to send the player in the right direction
-        _touchRotationFix = Quaternion.Euler(-45, 0, 45);
+        _thrustAudioSource = ThrustSoundGameObject.GetComponent<AudioSource>();
+        _ringManager = RingManagerGameObject.GetComponent<RingManagerController>();
     }
 
     private void FixedUpdate()
+    {
+        HandleJetpackMovement();
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("Ring"))
+        {
+            _ringManager.CollectRing();
+        }
+    }
+
+    private void HandleJetpackMovement()
     {
         var leftTriggerInput = OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger, LeftController);
         var rightTriggerInput = OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger, RightController);
@@ -55,9 +71,9 @@ public class OculusTouchInteractions : MonoBehaviour
 
         if (leftTriggerInput > 0)
         {
-            leftControllerRotation = OVRInput.GetLocalControllerRotation(LeftController) * _touchRotationFix;
+            leftControllerRotation = OVRInput.GetLocalControllerRotation(LeftController) * TouchRotationFix;
             averageControllerRotation = leftControllerRotation;
-            _rb.AddForce(leftControllerRotation * Vector3.one * leftTriggerInput * ThrustSpeed);
+            _rb.AddForce(leftControllerRotation * Vector3.one * leftTriggerInput * ThrustForceMultiplier);
 
             if (DebugEnabled)
             {
@@ -70,9 +86,9 @@ public class OculusTouchInteractions : MonoBehaviour
 
         if (rightTriggerInput > 0)
         {
-            rightControllerRotation = OVRInput.GetLocalControllerRotation(RightController) * _touchRotationFix;
+            rightControllerRotation = OVRInput.GetLocalControllerRotation(RightController) * TouchRotationFix;
             averageControllerRotation = rightControllerRotation;
-            _rb.AddForce(rightControllerRotation * Vector3.one * rightTriggerInput * ThrustSpeed);
+            _rb.AddForce(rightControllerRotation * Vector3.one * rightTriggerInput * ThrustForceMultiplier);
 
             if (DebugEnabled)
             {
@@ -89,12 +105,11 @@ public class OculusTouchInteractions : MonoBehaviour
         }
         if (leftTriggerInput > 0 || rightTriggerInput > 0)
         {
-            _ps.Emit(5);
+            _ps.Emit(1);
             if (!_thrusting)
             {
                 _thrusting = true;
                 _thrustAudioSource.Play();
-                _thrustAudioSource.loop = true;
             }
             if (DebugEnabled)
             {
