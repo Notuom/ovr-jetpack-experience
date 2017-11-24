@@ -4,18 +4,25 @@ using UnityEngine;
 public class OculusTouchInteractions : MonoBehaviour
 {
     // Configurable values
+
     public float ThrustForceMultiplier;
-    
+    public float MaxSpeed;
+
     // GameObject references
+
     public GameObject ThrustSoundGameObject;
     public GameObject SmokeGameObject;
     public GameObject RingManagerGameObject;
-    
+
     // OVRInput References
+
     public OVRInput.Controller LeftController;
     public OVRInput.Controller RightController;
+    public OVRInput.RawButton RotateLeftButton;
+    public OVRInput.RawButton RotateRightButton;
 
     // Debug items
+
     public Boolean DebugEnabled;
     public GameObject DebugLeftArrow;
     public GameObject DebugRightArrow;
@@ -23,8 +30,9 @@ public class OculusTouchInteractions : MonoBehaviour
 
     // Constants / read-only variables
     private static readonly Quaternion TouchRotationFix = Quaternion.Euler(-45, 0, 45);
-    
+
     // Component references
+
     private Rigidbody _rb;
     private ParticleSystem _ps;
     private AudioSource _thrustAudioSource;
@@ -44,6 +52,7 @@ public class OculusTouchInteractions : MonoBehaviour
     private void FixedUpdate()
     {
         HandleJetpackMovement();
+        HandleCameraMovement();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -73,7 +82,8 @@ public class OculusTouchInteractions : MonoBehaviour
         {
             leftControllerRotation = OVRInput.GetLocalControllerRotation(LeftController) * TouchRotationFix;
             averageControllerRotation = leftControllerRotation;
-            _rb.AddForce(leftControllerRotation * Vector3.one * leftTriggerInput * ThrustForceMultiplier);
+            _rb.AddForce(transform.rotation * leftControllerRotation * Vector3.one * leftTriggerInput *
+                         ThrustForceMultiplier);
 
             if (DebugEnabled)
             {
@@ -88,7 +98,8 @@ public class OculusTouchInteractions : MonoBehaviour
         {
             rightControllerRotation = OVRInput.GetLocalControllerRotation(RightController) * TouchRotationFix;
             averageControllerRotation = rightControllerRotation;
-            _rb.AddForce(rightControllerRotation * Vector3.one * rightTriggerInput * ThrustForceMultiplier);
+            _rb.AddForce(transform.rotation * rightControllerRotation * Vector3.one * rightTriggerInput *
+                         ThrustForceMultiplier);
 
             if (DebugEnabled)
             {
@@ -121,6 +132,18 @@ public class OculusTouchInteractions : MonoBehaviour
         {
             _thrusting = false;
             _thrustAudioSource.Stop();
+        }
+    }
+
+    private void HandleCameraMovement()
+    {
+        if (OVRInput.Get(RotateLeftButton))
+        {
+            transform.Rotate(0, -10, 0);
+        }
+        else if (OVRInput.Get(RotateRightButton))
+        {
+            transform.Rotate(0, 10, 0);
         }
     }
 }

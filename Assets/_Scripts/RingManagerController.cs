@@ -7,8 +7,10 @@ public class RingManagerController : MonoBehaviour
 {
     public GameObject RingPrefab;
     public GameObject CollectSoundGameObject;
+    public GameObject FinishSoundGameObject;
 
     private AudioSource _collectAudioSource;
+    private AudioSource _finishAudioSource;
     private List<GameObject> _ringSpawns;
 
     private GameObject _currentRing;
@@ -16,24 +18,20 @@ public class RingManagerController : MonoBehaviour
     private void Start()
     {
         _collectAudioSource = CollectSoundGameObject.GetComponent<AudioSource>();
+        _finishAudioSource = FinishSoundGameObject.GetComponent<AudioSource>();
 
         // Find all rings 
         _ringSpawns = GameObject.FindGameObjectsWithTag("Ring Spawn").OrderBy(o => o.name).ToList();
 
-        // Reorder them
-        Debug.Log("Rings: " + _ringSpawns.Count);
-
-
         // Spawn first ring
-        NextRing();
+        SpawnNextRing();
     }
 
-    private void NextRing()
+    private void SpawnNextRing()
     {
         if (_ringSpawns.Count > 0)
         {
             var ringSpawn = _ringSpawns[0];
-            Debug.Log("Activating ring " + ringSpawn.name);
             if (_currentRing == null)
             {
                 _currentRing = Instantiate(RingPrefab, ringSpawn.transform.position, ringSpawn.transform.rotation);
@@ -48,7 +46,8 @@ public class RingManagerController : MonoBehaviour
         }
         else
         {
-            Debug.Log("No more rings to activate!");
+            _finishAudioSource.Play();
+            Destroy(_currentRing);
         }
     }
 
@@ -57,6 +56,6 @@ public class RingManagerController : MonoBehaviour
         _collectAudioSource.Play();
 
         Debug.Log("Ring collected. Rings remaining : " + _ringSpawns.Count);
-        NextRing();
+        SpawnNextRing();
     }
 }
