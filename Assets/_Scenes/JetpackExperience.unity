@@ -963,15 +963,15 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 13758288, guid: 40fa1366fc946f04fba38099b3610b23, type: 2}
       propertyPath: m_CastShadows
-      value: 0
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 13702102, guid: 40fa1366fc946f04fba38099b3610b23, type: 2}
       propertyPath: m_CastShadows
-      value: 0
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 13732750, guid: 40fa1366fc946f04fba38099b3610b23, type: 2}
       propertyPath: m_CastShadows
-      value: 0
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 9547548, guid: 40fa1366fc946f04fba38099b3610b23, type: 2}
