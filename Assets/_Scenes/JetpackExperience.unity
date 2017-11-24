@@ -959,7 +959,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 159468, guid: 40fa1366fc946f04fba38099b3610b23, type: 2}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 13758288, guid: 40fa1366fc946f04fba38099b3610b23, type: 2}
       propertyPath: m_CastShadows
@@ -970,6 +970,10 @@ Prefab:
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 13732750, guid: 40fa1366fc946f04fba38099b3610b23, type: 2}
+      propertyPath: m_CastShadows
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 13781614, guid: 40fa1366fc946f04fba38099b3610b23, type: 2}
       propertyPath: m_CastShadows
       value: 2
       objectReference: {fileID: 0}

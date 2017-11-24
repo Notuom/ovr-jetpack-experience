@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEngine;
 
@@ -12,19 +13,29 @@ public class RingManagerController : MonoBehaviour
     private AudioSource _collectAudioSource;
     private AudioSource _finishAudioSource;
     private List<GameObject> _ringSpawns;
-
     private GameObject _currentRing;
+
+    private int _currentRingNumber;
+    private DateTime _ringStartTime;
+    private StreamWriter _csvWriter;
+
 
     private void Start()
     {
         _collectAudioSource = CollectSoundGameObject.GetComponent<AudioSource>();
         _finishAudioSource = FinishSoundGameObject.GetComponent<AudioSource>();
 
-        // Find all rings 
+        // Find all ring children and order them by name so they spawn in the right order
         _ringSpawns = GameObject.FindGameObjectsWithTag("Ring Spawn").OrderBy(o => o.name).ToList();
 
         // Spawn first ring
         SpawnNextRing();
+
+        // Initiate CSV file writing
+        _ringStartTime = DateTime.Now;
+        _csvWriter = File.CreateText("data_" + _ringStartTime.ToString("yy-MM-dd-HH-mm-ss") + ".csv");
+        _csvWriter.AutoFlush = true;
+        _csvWriter.WriteLine("RingId,SecondsToCollect");
     }
 
     private void SpawnNextRing()
@@ -43,11 +54,13 @@ public class RingManagerController : MonoBehaviour
             }
             _ringSpawns.RemoveAt(0);
             Destroy(ringSpawn);
+            _currentRingNumber++;
         }
         else
         {
             _finishAudioSource.Play();
             Destroy(_currentRing);
+            _csvWriter.Close();
         }
     }
 
@@ -55,7 +68,10 @@ public class RingManagerController : MonoBehaviour
     {
         _collectAudioSource.Play();
 
-        Debug.Log("Ring collected. Rings remaining : " + _ringSpawns.Count);
+        // Collect statistics to file, restart timer for next ring
+        _csvWriter.WriteLine(_currentRingNumber + "," + (DateTime.Now - _ringStartTime).TotalSeconds);
+        _ringStartTime = DateTime.Now;
+
         SpawnNextRing();
     }
 }

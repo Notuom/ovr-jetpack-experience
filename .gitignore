@@ -37,3 +37,4 @@ sysinfo.txt
 *.unitypackage
 MTI880_KT_Jetpack_VR.exe
 MTI880_KT_Jetpack_VR_Data
+data_*.csv
