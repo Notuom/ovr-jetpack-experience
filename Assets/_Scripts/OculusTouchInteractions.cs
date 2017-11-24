@@ -7,6 +7,7 @@ public class OculusTouchInteractions : MonoBehaviour
 
     public float ThrustForceMultiplier;
     public float MaxSpeed;
+    public float RotateAngleStep;
 
     // GameObject references
 
@@ -49,10 +50,14 @@ public class OculusTouchInteractions : MonoBehaviour
         _ringManager = RingManagerGameObject.GetComponent<RingManagerController>();
     }
 
+    private void Update()
+    {
+        HandleCameraMovement();
+    }
+
     private void FixedUpdate()
     {
         HandleJetpackMovement();
-        HandleCameraMovement();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -137,13 +142,13 @@ public class OculusTouchInteractions : MonoBehaviour
 
     private void HandleCameraMovement()
     {
-        if (OVRInput.Get(RotateLeftButton))
+        if (OVRInput.GetDown(RotateLeftButton))
         {
-            transform.Rotate(0, -10, 0);
+            transform.Rotate(0, -RotateAngleStep, 0);
         }
-        else if (OVRInput.Get(RotateRightButton))
+        else if (OVRInput.GetDown(RotateRightButton))
         {
-            transform.Rotate(0, 10, 0);
+            transform.Rotate(0, RotateAngleStep, 0);
         }
     }
 }
