@@ -22,13 +22,6 @@ public class OculusTouchInteractions : MonoBehaviour
     public OVRInput.RawButton RotateLeftButton;
     public OVRInput.RawButton RotateRightButton;
 
-    // Debug items
-
-    public Boolean DebugEnabled;
-    public GameObject DebugLeftArrow;
-    public GameObject DebugRightArrow;
-    public GameObject DebugAverageArrow;
-
     // Constants / read-only variables
     private static readonly Quaternion TouchRotationFix = Quaternion.Euler(-45, 0, 45);
 
@@ -72,53 +65,21 @@ public class OculusTouchInteractions : MonoBehaviour
     {
         var leftTriggerInput = OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger, LeftController);
         var rightTriggerInput = OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger, RightController);
-        Quaternion leftControllerRotation = Quaternion.identity,
-            rightControllerRotation = Quaternion.identity,
-            averageControllerRotation = Quaternion.identity;
-
-        if (DebugEnabled)
-        {
-            DebugAverageArrow.SetActive(false);
-            DebugLeftArrow.SetActive(false);
-            DebugRightArrow.SetActive(false);
-        }
 
         if (leftTriggerInput > 0)
         {
-            leftControllerRotation = OVRInput.GetLocalControllerRotation(LeftController) * TouchRotationFix;
-            averageControllerRotation = leftControllerRotation;
+            var leftControllerRotation = OVRInput.GetLocalControllerRotation(LeftController) * TouchRotationFix;
             _rb.AddForce(transform.rotation * leftControllerRotation * Vector3.one * leftTriggerInput *
                          ThrustForceMultiplier);
-
-            if (DebugEnabled)
-            {
-                DebugLeftArrow.SetActive(true);
-                DebugAverageArrow.SetActive(true);
-                Debug.DrawLine(Vector3.zero, leftControllerRotation * Vector3.one, Color.red);
-                DebugLeftArrow.transform.rotation = leftControllerRotation;
-            }
         }
 
         if (rightTriggerInput > 0)
         {
-            rightControllerRotation = OVRInput.GetLocalControllerRotation(RightController) * TouchRotationFix;
-            averageControllerRotation = rightControllerRotation;
+            var rightControllerRotation = OVRInput.GetLocalControllerRotation(RightController) * TouchRotationFix;
             _rb.AddForce(transform.rotation * rightControllerRotation * Vector3.one * rightTriggerInput *
                          ThrustForceMultiplier);
-
-            if (DebugEnabled)
-            {
-                DebugRightArrow.SetActive(true);
-                DebugAverageArrow.SetActive(true);
-                Debug.DrawLine(Vector3.zero, rightControllerRotation * Vector3.one, Color.blue);
-                DebugRightArrow.transform.rotation = rightControllerRotation;
-            }
         }
 
-        if (leftTriggerInput > 0 && rightTriggerInput > 0)
-        {
-            averageControllerRotation = Quaternion.Lerp(leftControllerRotation, rightControllerRotation, 0.5f);
-        }
         if (leftTriggerInput > 0 || rightTriggerInput > 0)
         {
             _ps.Emit(1);
@@ -126,11 +87,6 @@ public class OculusTouchInteractions : MonoBehaviour
             {
                 _thrusting = true;
                 _thrustAudioSource.Play();
-            }
-            if (DebugEnabled)
-            {
-                DebugAverageArrow.transform.rotation = averageControllerRotation;
-                Debug.DrawLine(Vector3.zero, averageControllerRotation * Vector3.one, Color.white);
             }
         }
         else if (_thrusting)
