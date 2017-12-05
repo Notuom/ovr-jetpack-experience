@@ -8,11 +8,11 @@ public class AvatarPositionController : MonoBehaviour
 
     private void Update()
     {
-        // Set position relative to another object
+        // Set position relative to the other object
         var anchorPosition = AnchorObject.transform.position;
         transform.position = new Vector3(anchorPosition.x, anchorPosition.y - 1.5f, anchorPosition.z);
 
-        // Set Y rotation relative to another object
+        // Set Y rotation relative the other object
         var anchorAngles = AnchorObject.transform.rotation.eulerAngles;
         var eulerAngles = transform.rotation.eulerAngles;
         transform.rotation = Quaternion.Euler(eulerAngles.x, anchorAngles.y, eulerAngles.z);
