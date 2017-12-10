@@ -28,6 +28,19 @@ public class RingManagerController : MonoBehaviour
         // Find all ring children and order them by name so they spawn in the right order
         _ringSpawns = GameObject.FindGameObjectsWithTag("Ring Spawn").OrderBy(o => o.name).ToList();
 
+        // Print all distances to a CSV
+        var distanceCsvWriter = File.CreateText("distances.csv");
+        distanceCsvWriter.WriteLine("RingId,DistanceUnits");
+        var prevPosition = new Vector3(0, 0, 0);
+        var ringId = 1;
+        foreach (var ringSpawn in _ringSpawns)
+        {
+            distanceCsvWriter.WriteLine(ringId + "," + Vector3.Distance(prevPosition, ringSpawn.transform.position));
+            prevPosition = ringSpawn.transform.position;
+            ringId++;
+        }
+        distanceCsvWriter.Close();
+
         // Spawn first ring
         SpawnNextRing();
 
